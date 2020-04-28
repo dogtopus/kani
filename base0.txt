@@ -1,0 +1,601 @@
+;mode800,value4000
+*define
+nsa
+caption "遥かに仰ぎ、麗しの　for ONScripter"
+menusetwindow 24,24,2,2,0,1,#BB8866
+savenumber 20
+rmenu "画像表示",windowerase ,"セーブ",save,"ロード",load,"選択肢まで進む",skip,"回想",lookback,"終了する",reset
+effect 2,10,1000
+effect 3,3,500
+effect 4,10,300
+defaultspeed 10,5,1
+transmode alpha
+effectcut
+globalon
+dim ?1[9]
+dim ?2[9]
+windowback
+humanz 30
+
+textgosub *sys_first
+pretextgosub *pretext
+loadgosub *loadadjust
+
+usewheel
+maxkaisoupage 40
+automode
+automode_time 1200
+
+;#システム変数
+numalias back,11
+numalias tag,12
+numalias textwin,13
+numalias scale,4000
+numalias back_loop,15
+numalias back_tmp,16
+numalias name,7
+numalias voice,8
+numalias sel1,9
+numalias sel2,10
+numalias sel3,11
+numalias jump1,12
+numalias jump2,13
+numalias jump3,14
+
+;#シナリオフラグ
+
+;get_numalias
+
+;#命令定義
+defsub movie
+defsub name
+defsub dwsa
+defsub nend
+defsub setwin
+defsub voice
+defsub textbtn
+defsub cspchar
+defsub cspmenu
+defsub cspcsel
+defsub cselect2
+defsub cselect3
+defsub endlog
+defsub getldlocate
+defsub movie
+defsub vsp_btn0
+defsub vsp_btn1
+defsub vsp_name0
+defsub vsp_name1
+defsub vsp_csel0
+defsub vsp_csel1
+defsub textoff1
+defsub name2
+defsub namecl
+defsub face
+defsub lsps
+defsub lspsr
+defsub amsps
+defsub wait2
+
+;define節終了
+
+game
+
+*start
+
+mov %tag,3000
+mov %scale,800
+
+;=======================================
+erasetextwindow 1
+rubyon
+
+goto *mainmenu
+
+;==========ユーザー定義命令=============
+
+*movie
+csp -1
+getparam $2,%2
+saveoff
+fileexist %3,$2:if %3=0 return
+split $2,".",$1:add $1,"-"
+
+mov %1,0:mov %4,7
+for %0=0 to 999999
+itoa $0,%0:len %5,$0:mov %6,%4-%5
+for %7=1 to %6:mov $0,"0"+$0:next
+fileexist %3,$1+$0+".png"
+if %3=1 inc %1
+if %3=0 break
+next
+
+mov %0,0
+lr_trap *movie_end
+bgmonce $2
+resettimer
+for %0=1 to 999999
+gettimer %3
+itoa $0,%1*%3/%2:len %5,$0:mov %6,%4-%5
+for %7=1 to %6:mov $0,"0"+$0:next
+if %3>=%2 break
+bg $1+$0+".png",1
+;btndef $1+$0+".png":blt 0,0,800,600,0,0,800,600
+next
+goto *movie_end2
+
+*movie_end
+if %0>0 break:next
+*movie_end2
+lr_trap off
+;ofscpy
+bg black,1:stop
+return
+
+*cspchar
+for %0=32 to 36
+csp2 %0
+next
+return
+
+*cspmenu
+for %0=4 to 9
+csp %0
+next
+return
+
+*cspcsel
+for %0=24 to 30
+csp %0
+next
+return
+
+*vsp_name0
+vsp 0,0
+vsp 1,0
+vsp 2,0
+return
+
+*vsp_name1
+vsp 0,1
+vsp 1,1
+vsp 2,1
+textshow
+return
+
+*vsp_csel0
+for %0=24 to 29
+vsp %0,0
+next
+return
+
+*vsp_csel1
+for %0=24 to 29
+vsp %0,1
+next
+return
+
+*endlog
+for %0=4 to 23
+csp %0
+next
+print 1
+texton
+return
+
+*dwsa
+dwavestop 0:dwavestop 1:dwavestop 2:dwavestop 3:dwavestop 4
+return
+
+*name
+getparam $1
+len %1,$1
+mov %2,217-7*%1
+erasetextwindow 0
+lsp 0,":s/24,24,2,2;#FFFFFF$1",%2,431
+lsp 1,"image/nmbase.png",30,424,200
+print 1
+return
+
+*textoff1
+textoff
+erasetextwindow 0
+csp 0:csp 1:csp 2
+erasetextwindow 1
+return
+
+*nend
+erasetextwindow 0
+csp 0:csp 1:csp 2:print 1:dwavestop 0
+erasetextwindow 1
+return
+
+*setwin
+textoff
+setwindow3 74,480,28,3,26,26,1,2,10,1,1,":a;image/winbase0.png",0,414
+!sd
+return
+
+*voice
+getparam $1
+isskip %0
+if %0=1 return
+dwavestop 0
+dwave 0,"voice/"+$1+".ogg"
+return
+
+*textbtn
+return
+
+*face
+getparam $1
+lsp 2,"image/"+$1+".png",5,295
+print 1
+return
+
+*lsps
+getparam %19,$3,%20,%21
+lsph %19,$3,0,0,0
+getspsize %19,%7,%8
+csp %19
+mov %20,%20+%7/2+1
+mov %21,%21+%8/2+1
+lsp2 %19,$3,%20,%21,100,100,0
+return
+
+*lspsr
+getparam %19,$3,%20,%21,%22
+;lsph %19,$3,0,0,0
+;getspsize %19,%7,%8
+;csp %19
+mov %20,800-((%20-400)*%22/100+400)
+mov %21,600-((%21-300)*%22/100+300)
+lsp2 %19,$3,%20,%21,%22,%22,0
+return
+
+*amsps
+getparam %19,%20,%21,%22
+getspsize %19,%7,%8
+mov %20,%20+%7/2+1
+mov %21,%21+%8/2+1
+amsp2 %19,%20,%21,100,100,0,255
+return
+
+*wait2
+getparam %1
+isskip %0
+if %0=1 return
+delay %1
+return
+
+;=システムカスタマイズ==================
+
+*loadadjust
+dec %tag
+setwindow3 74,480,28,3,26,26,1,2,10,1,1,":a;image/winbase0.png",0,414
+!sd
+return
+
+*pretext
+gettag $0
+split $0,"|",%1,$name,$voice
+if %1 == 1 inc %tag:mov $%tag,$0
+if $voice != "" voice $voice
+if $name != "" name $name
+if %tag = 3049 mov %tag,2999
+return
+
+
+*sys_first
+erasetextwindow 0
+*sys_btn
+
+btndef clear
+
+
+textbtnwait %0
+if %0=0 goto *sys_end
+if %0=-1 gosub *rmenu_first:goto *sys_btn
+if %0=-2 vsp_name0:gosub *back_first:vsp_name1:goto *sys_btn
+if %0=-3 goto *sys_end
+
+goto *sys_btn
+
+*sys_end
+vsp_name1
+texec
+;isskip %0
+;if %0 != 1 repaint
+saveon
+erasetextwindow 1
+return
+
+;=======================================
+
+*rmenu_first
+texthide
+vsp_name0
+btndef clear
+lsp 4,":s/20,20,0,2;#FFFFFF#5353C2Ｌｏａｄ",630,475
+lsp 5,":s/20,20,0,2;#FFFFFF#5353C2Ｓａｖｅ",630,495
+lsp 6,":s/20,20,0,2;#FFFFFF#5353C2Ｒｅｓｅｔ",630,555
+lsp 7,":s/20,20,0,2;#FFFFFF#5353C2Ｓｋｉｐ",630,515
+lsp 8,":s/20,20,0,2;#FFFFFF#5353C2Ａｕｔｏ",630,535
+lsp 9,":s/20,20,0,2;#FFFFFF#5353C2×",720,475
+print 1
+
+*rmenu_btn
+spbtn 4,4
+spbtn 5,5
+spbtn 6,6
+spbtn 7,7
+spbtn 8,8
+spbtn 9,9
+
+btnwait %0
+if %0=-1 cspmenu:vsp_name1:return
+if %0=-2 cspmenu:gosub *back_first:vsp_name1:return
+if %0=-3 cspmenu:vsp_name1:return
+if %0=4 cspmenu:vsp_name0:print 1:gosub *load_first:vsp_name1:return
+if %0=5 cspmenu:vsp_name0:print 1:gosub *save_first:vsp_name1:return
+if %0=6 cspmenu:vsp_name0:systemcall reset:vsp_name1:print 1:return
+if %0=7 cspmenu:systemcall skip:return
+if %0=8 cspmenu:systemcall automode:return
+if %0=9 cspmenu:systemcall windowerase:vsp_name1:print 1:return
+
+goto *rmenu_btn
+
+*save_first
+textoff
+systemcall save
+texton
+return
+
+*load_first
+textoff
+systemcall load
+texton
+return
+
+;=======================================
+
+*cselect2
+inc %tag
+btndef clear
+texton
+getparam $sel1,$jump1,$sel2,$jump2
+lsp 24,":s/26,26,2,2;#808080#FFFFFF$sel1",160,215
+lsp 25,"image/selwnd0.png",15,200
+lsp 26,":s/26,26,2,2;#808080#FFFFFF$sel2",160,295
+lsp 27,"image/selwnd0.png",15,280
+print 10,300
+saveoff
+goto *csel_btn
+
+*cselect3
+inc %tag
+btndef clear
+texton
+getparam $sel1,$jump1,$sel2,$jump2,$sel3,$jump3
+lsp 24,":s/24,24,2,2;#808080#FFFFFF$sel1",160,205
+lsp 25,"image/selwnd0.png",0,200
+lsp 26,":s/24,24,2,2;#808080#FFFFFF$sel2",160,245
+lsp 27,"image/selwnd0.png",0,240
+lsp 28,":s/24,24,2,2;#808080#FFFFFF$sel3",160,285
+lsp 29,"image/selwnd0.png",0,280
+print 10,300
+saveoff
+goto *csel_btn
+
+*csel_btn
+btndef clear
+cspmenu
+vsp_csel1
+spbtn 24,1
+spbtn 26,2
+spbtn 28,3
+
+btnwait %0
+if %0=-1 vsp_csel0:gosub *rmenu_first:goto *csel_btn
+if %0=-2 vsp_csel0:gosub *back_first:goto *csel_btn
+if %0=1 dec %tag:cspcsel:print 10,300:btndef clear:mov $1,$jump1:return
+if %0=2 dec %tag:cspcsel:print 10,300:btndef clear:mov $1,$jump2:return
+if %0=3 dec %tag:cspcsel:print 10,300:btndef clear:mov $1,$jump3:return
+if %0=7 vsp_csel0:gosub *back_first:goto *csel_btn
+if %0=8 csp 8:vsp_csel0:vsp_name0:vsp_btn0:systemcall windowerase:vsp_name1:print 1:goto *csel_btn
+goto *csel_btn
+
+
+;=======================================
+
+*back_first
+btndef clear
+mov %back,1
+checkpage %1,1
+if %1=0 return
+vsp_name0
+textoff
+lsp 23,"image/blog.png",0,0
+
+gosub *back_page
+
+lsp 4,":s/24,24,0;#FFFFFF#5353C2△",735,200
+lsp 5,":s/24,24,0;#FFFFFF#5353C2▲",735,220
+lsp 6,":s/24,24,0;#FFFFFF#5353C2▼",735,380
+lsp 7,":s/24,24,0;#FFFFFF#5353C2▽",735,400
+lsp 8,":s/24,24,0;#FFFFFF#5353C2×",735,510
+print 1
+
+*back_btn
+
+spbtn 4,4
+spbtn 5,5
+spbtn 6,6
+spbtn 7,7
+spbtn 8,8
+
+btnwait %0
+if %0=0 endlog:return
+if %0=-1 endlog:return
+if %0=-2 inc %back:gosub *back_page
+if %0=-3 && %back==1 endlog:return
+if %0=-3 && %back!=1 dec %back:gosub *back_page
+if %0=4 add %back,4:gosub *back_page
+if %0=5 inc %back:gosub *back_page
+if %0=6 && %back==1 endlog:return
+if %0=6 && %back!=1 dec %back:gosub *back_page
+if %0=7 sub %back,4:gosub *back_page
+if %0=8 endlog:return
+if %0=16 voice $15:gosub *back_page
+if %0=18 voice $17:gosub *back_page
+if %0=20 voice $19:gosub *back_page
+if %0=22 voice $21:gosub *back_page
+goto *back_btn
+
+*back_page
+btndef clear
+
+
+if %back <= 1 mov %back,1
+
+if %back < 5 jumpf
+for %0=0 to 4
+checkpage %1,%back-%0
+if %1=0 dec %back
+next
+~
+
+checkpage %1,%back;
+if %1=0 dec %back:return
+
+for %0=15 to 22;
+csp %0
+next
+
+if %back < 4 jumpf;
+checkpage %1,%back+3
+if %1=0 dec %back
+~
+
+for %back_loop=0 to 3
+
+mov %back_tmp,%back+%back_loop
+
+checkpage %1,%back_tmp
+if %1=0 break
+
+getlog $1,%back_tmp
+
+split $1,"(",$21,$22,$23,$24,$25
+if $25 != "" split $25,")",$31,$32:split $31,"/",$33,$34:mov $25,$33+$32
+if $24 != "" split $24,")",$31,$32:split $31,"/",$33,$34:mov $24,$33+$32
+if $23 != "" split $23,")",$31,$32:split $31,"/",$33,$34:mov $23,$33+$32
+if $22 != "" split $22,")",$31,$32:split $31,"/",$33,$34:mov $22,$33+$32
+mov $1,$21+$22+$23+$24+$25
+
+mov %1,80*%scale/800
+mov %2,(480-%back_loop*120)*%scale/800
+mov %3,15+%back_loop*2
+strsp %3,$1,%1,%2,28,4,24,24,1,3,1,2,#FFFFFF
+mov %4,%tag-%back_tmp
+if %4 < 3000 add %4,50
+split $%4,"|",%0,$4,$%3
+mov %5,%3+1
+if $%3 != "" add $4,"♪"
+if $4 != "" lsp %5,":s/24,24,2,2;#FFFFFF#5353C2$4",70,452-%back_loop*120
+if $%3 != "" spbtn %5,%5
+
+next
+
+print 1
+return
+
+
+;=専用命令==============================
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ここまで
+
+*L_MAINMENU
+cspchara
+csp2 37
+*mainmenu
+lsp ":c;image/black.png",0,0
+print 1
+setwin
+textoff
+bg black,1
+csp -1
+print 1
+textoff
+erasetextwindow 0
+rubyon
+dwavestop 1
+dwavestop 2
+dwavestop 3
+dwavestop 4
+csp 36
+csp 35
+csp 34
+csp 33
+mov %0,0
+mov %1,0
+if %gflag_f2>=1 && %gflag_f3>=1 && %gflag_f4>=1 && %gflag_f5>=1 && %gflag_f6>=1 && %gflag_f7>=1 mov %1,1
+if %1=1 jumpf
+bg "image/main1gp.png",0
+print 10,2000
+bgm "bgm/music_02.ogg"
+~
+if %1=0 jumpf
+bg "image/main2gp.png",0
+print 10,2000
+bgm "bgm/title_03.ogg"
+lsph 1,":s/28,28,2;#FFFFFF『　　　　　　』",285,230
+~
+lsph 2,":s/28,28,2;#FFFFFF『　　　　　　』",285,275
+if %gflag_f0>=1 lsph 3,":s/28,28,2;#FFFFFF『　　　　　　』",285,320
+lsph 4,":s/28,28,2;#FFFFFF『　　　　　　』",285,365
+lsph 5,":s/28,28,2;#FFFFFF『　　　　　　』",285,410
+
+*mainbtn
+exbtn_d "C1C2C3C4C5"
+exbtn 1,1,"P1C2C3C4C5"
+exbtn 2,2,"C1P2C3C4C5"
+exbtn 3,3,"C1C2P3C4C5"
+exbtn 4,4,"C1C2C3P4C5"
+exbtn 5,5,"C1C2C3C4P5"
+btnwait %0
+if %0 == 0 goto *mainbtn
+if %0 == -1 systemcall load
+if %0 == 1 csp -1:bg black,10,500:stop:goto *ep_0101
+if %0 == 2 csp -1:bg black,10,500:stop:goto *initial
+if %0 == 3 csp -1:bg black,10,500:stop:goto *initial2
+if %0 == 4 systemcall load
+if %0 == 5 csp -1:bg black,10,500:stop:goto *initial
+goto *mainbtn
+
+
+*initial
+
+;initialflag
+
+
+goto *L_al_0101
+
+*initial2
+
+;initialflag
+
+bg "image/BG15rnl.png",0
+lsp 35,"image/K1_BA06S.png",230,-11
+print 10,300
+dwavestop 0:dwave 0,"voice/aka_0118.ogg"
+name "暁"
+「どっちだ？」\
+nend
+僕は……。\
+cselect2 "右と告げた。","*L_ho_0101","左と告げた。","*L_bu_0101a"
+csp -1:bg black 1
+goto $1
